@@ -2,11 +2,7 @@
 // 这四个方法 （1）是不是只读 （2）是不是深 {list:{}}
 // 注意 核心 proxy 源码 柯里化：根据不同的参数
 import { isObject } from "@vue/shared"
-
-const reactiveHandlers = {}
-const shallowReactiveHandlers = {}
-const readonlyHandlers = {}
-const shallowReadonlyHandlers = {}
+import {reactiveHandlers,shallowReactiveHandlers,readonlyHandlers,shallowReadonlyHandlers} from './baseHandlers'
 
 export function reactive(target) {
    return createReactObject(target,false,reactiveHandlers) // 1. 创建一个proxy或者代理对象 2. 将代理对象作为属性发送到内部
