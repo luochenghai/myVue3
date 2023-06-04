@@ -1,5 +1,7 @@
 import { isObject } from "@vue/shared"
 import { reactive ,readonly } from "./reactive"
+import { TrackOpTypes } from './operations'
+import { Track } from './effect'
 
  
  function createGetter(isReadonly=false,shallow=false){
@@ -7,7 +9,9 @@ import { reactive ,readonly } from "./reactive"
         const res = Reflect.get(target, key, receiver)
         //判断
         if(!isReadonly){//非只读
-            // 收集依赖
+            // 收集依赖,等待数据变化后更新视图
+            // 收集 effect
+            Track(target,TrackOpTypes.GET,key)
         }
         if(shallow){
             return res // {name:'zhangsan',list}
