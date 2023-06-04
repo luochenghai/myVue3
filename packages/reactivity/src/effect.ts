@@ -71,3 +71,26 @@ export function Track(target,type,key) {
 
     console.log(targetMap)
 }
+
+// 触发更新
+export function trigger(target,type,key?,newValue?,oldValue?) {
+    console.log(target,type,key,newValue,oldValue)
+    // 触发依赖 问题
+    console.log(targetMap) // 收集依赖
+    const depsMap = targetMap.get(target) // 找到对应dependency的effect 如果没有找到，则找到null 找到一个map
+    if(!depsMap){
+        return 
+    }
+    // 有
+    let effectSet = new Set() //如果有多个 同时修改 一个值并且修改的值 相同，用set 去重
+    const add = (effectAdd) =>{
+        if(effectAdd){
+            effectAdd.forEach(effect => {
+                effectSet.add(effect) // 收集依赖 并将收集的依赖保存到effectSet中 保存到WeakSet
+            });
+        }
+    }
+    add(depsMap.get(key)) // 获取当前属性的effect
+    // 执行
+    effectSet.forEach((effect:any) => effect())
+}

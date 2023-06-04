@@ -7,8 +7,8 @@ export const enum TrackOpTypes {
 }
 
 export const enum TriggerOpTypes {
-    GET = 'set',
-    HAS = 'add',
+    SET = 'set',
+    ADD = 'add',
     DETELE='detele',
     CLEAR = 'clear', 	
   }
