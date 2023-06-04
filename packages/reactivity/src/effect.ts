@@ -24,15 +24,17 @@ function createReactEffect(fn,options){
              // state.a // 收集 effect1
 
         // })
-        try {
-            // 入栈
-            effectStack.push(effect)
-            activeEffect = effect
-            fn() // 用户传进来的方法
-        }finally{
-            // 出栈
-            effectStack.pop() // 弹出最后一个effect
-            activeEffect = effectStack[effectStack.length - 1] // 将最后一个effect设置为当前的effect或者执行
+        if(!effectStack.includes(effect)){ //保证effect 没有加入到栈中
+            try {
+                // 入栈
+                effectStack.push(effect)
+                activeEffect = effect
+                fn() // 用户传进来的方法
+            }finally{
+                // 出栈
+                effectStack.pop() // 弹出最后一个effect
+                activeEffect = effectStack[effectStack.length - 1] // 将最后一个effect设置为当前的effect或者执行
+            }
         }
     }
     activeEffect = effect; // 全局变量 activeEffect 保存当前的effect
@@ -45,7 +47,27 @@ function createReactEffect(fn,options){
 }
 
 // 3 收集effect 在获取数据时触发 get 收集effect
+let targetMap = new WeakMap()
 export function Track(target,type,key) {
-    console.log(target,type,key,activeEffect)
+    // console.log(target,type,key,activeEffect)
+    // key 和我们的effect 一 一 对应 map=>key=>target=>属性=> [effect]  set
+    if(activeEffect === undefined){ // 没有在effect 中使用
+        return 
+    }
+    // 获取effect { target:dep }
+    let depMap = targetMap.get(target)
+    if(!depMap) { // 没有
+        targetMap.set(target,depMap = new Map()) // 创建一个map 并将其保存到WeakMap中 保存到Weak
+    }
+    // 有
+    let dep = depMap.get(key) // {name:[]} 找到对应dep的effect 如果没有找到，则找到null
+    if(!dep) { // 找到了dep 但是没有找到对应name的effect  没有属性
+        depMap.set(key,(dep=new Set))
+    }
+    // 有没有 effect key
+    if(!dep.has(activeEffect)){
+        dep.add(activeEffect) // 收集effect
+    }
 
+    console.log(targetMap)
 }

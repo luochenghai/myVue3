@@ -9,10 +9,14 @@
     <script src="../reactivity/dist/reactivity.global.js"></script>
     <script>
         let { reactive,readonly,shallowReactive,shallowReadonly,effect} = VueReactivity
-        let state = shallowReactive({name:'张三',list:{a:200}})
+        let state = shallowReactive({name:'张三',age:{n:11},a:55})
         //   console.log(state.list,555555)
-         effect(()=>{
-            let data = state.name + state.list
+        effect(()=>{
+            state.name
+         })
+        effect(()=>{
+            state.name,
+            state.age
          })
 
     </script>
