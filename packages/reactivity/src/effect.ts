@@ -1,3 +1,6 @@
+import { isArray, isIntegerKey } from "@vue/shared";
+import { TriggerOpTypes } from "./operations";
+
 // 定义 effect 依赖收集 相关属性
 export function effect(fn,options:any= {}){
   const effect = createReactEffect(fn,options)
@@ -68,16 +71,16 @@ export function Track(target,type,key) {
     if(!dep.has(activeEffect)){
         dep.add(activeEffect) // 收集effect
     }
-
-    console.log(targetMap)
+    // console.log(targetMap)
 }
 
 // 触发更新
 export function trigger(target,type,key?,newValue?,oldValue?) {
-    console.log(target,type,key,newValue,oldValue)
+     console.log(target,type,key,newValue,oldValue)
     // 触发依赖 问题
     console.log(targetMap) // 收集依赖
     const depsMap = targetMap.get(target) // 找到对应dependency的effect 如果没有找到，则找到null 找到一个map
+    console.log('depsMap:',depsMap)
     if(!depsMap){
         return 
     }
@@ -91,6 +94,34 @@ export function trigger(target,type,key?,newValue?,oldValue?) {
         }
     }
     add(depsMap.get(key)) // 获取当前属性的effect
-    // 执行
-    effectSet.forEach((effect:any) => effect())
+    console.log('当前属性key:',depsMap.get(key))
+    // 处理数组 就是 key === length 修改数组的length  特殊处理
+    if(key === 'length' && isArray(target)){
+        console.log('进入了if')
+        depsMap.forEach((dep,key) => {
+           console.log(key,newValue)
+            console.log(dep)
+            //如果更改的长度 小于 收集的索引，那么这个索引需要重新执行 effect
+            if(key === 'length' || key > newValue){
+                add(dep)
+            }
+        });
+    }else {
+        console.log('进入了else')
+        console.log(key,newValue)
+     
+       //可能是对象
+       if(key != undefined){ // key 存在时
+          add(depsMap.get(key)) // 获取对应的dependency的effect 
+       }
+        // 数组 修改 索引 （key 不存在时,说命名是新增）
+        switch (type) {
+            case TriggerOpTypes.ADD:
+                if(isArray(target)&&isIntegerKey(key)){ 
+                    add (depsMap.get('length'))
+                }
+        }
+    }
+     // 执行
+     effectSet.forEach((effect:any) => effect())
 }

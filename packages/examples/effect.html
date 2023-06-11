@@ -6,18 +6,24 @@
     <title>Document</title>
 </head>
 <body>
+    <div id="app"></div>
     <script src="../reactivity/dist/reactivity.global.js"></script>
     <script>
         let { reactive,readonly,shallowReactive,shallowReadonly,effect} = VueReactivity
-        let state = shallowReactive({name:'张三',age:{n:11},a:55})
-        //   console.log(state.list,555555)
-        effect(()=>{
-            state.name
+        // let state = shallowReactive({name:'张三',age:{n:11},a:55, list:[1,2,3]})
+        let state = reactive({name:'张三',age:{n:11},a:55, list:[1,2,3]})
+        // console.log(state.list,555555)
+        effect(()=>{ 
+            app.innerHTML=  state.name + '========'+ state.list[2]
          })
-        effect(()=>{
-            state.name = '李四'
-           
-         })
+
+         setTimeout(()=>{ 
+             effect(()=>{
+                 state.list[100] = 100 
+                //  state.name = '李四'              
+              })
+
+         },2000)
 
     </script>
 </body>
